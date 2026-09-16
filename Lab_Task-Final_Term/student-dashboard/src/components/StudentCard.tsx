@@ -1,7 +1,9 @@
 import PropTypes from "prop-types";
+import { useState, useContext } from "react";
 import CourseTag from "./CourseTag";
 import StatBadge from "./StatBadge";
 import type { Course } from "../types/student";
+import { StudentContext } from "../context/StudentContext";
 
 interface StudentCardProps {
   name: string;
@@ -14,6 +16,7 @@ interface StudentCardProps {
   courses: Course[];
 }
 
+
 function StudentCard({
   name,
   id,
@@ -24,6 +27,24 @@ function StudentCard({
   semester,
   courses,
 }: StudentCardProps) {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const context = useContext(StudentContext);
+
+  if (!context) {
+    throw new Error("StudentCard must be used within a StudentProvider");
+  }
+
+  const { incrementFavorite, decrementFavorite, removeStudent } = context;
+
+  const handleFavoriteClick = () => {
+    const newState = !isFavorite;
+    setIsFavorite(newState);
+    if (newState) {
+      incrementFavorite();
+    } else {
+      decrementFavorite();
+    }
+  };
   return (
     <article className="student-card">
       <div className="student-card__top">
@@ -32,6 +53,15 @@ function StudentCard({
         <span className="student-card__status">
           Active
         </span>
+        
+        <button 
+          type="button" 
+          className={`student-card__favorite ${isFavorite ? "is-favorite" : ""}`}
+          onClick={handleFavoriteClick}
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          {isFavorite ? "★" : "☆"}
+        </button>
       </div>
 
       <div className="student-card__identity">
@@ -80,6 +110,23 @@ function StudentCard({
             />
           ))}
         </div>
+      </div>
+      <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+        <button 
+          onClick={() => removeStudent(id)}
+          style={{ 
+            padding: '0.4rem 0.8rem', 
+            background: '#fee2e2', 
+            color: '#dc2626', 
+            borderRadius: '4px',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '0.875rem',
+            fontWeight: 600
+          }}
+        >
+          Remove Student
+        </button>
       </div>
     </article>
   );

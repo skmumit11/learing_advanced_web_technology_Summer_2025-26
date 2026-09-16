@@ -1,4 +1,7 @@
-﻿import PropTypes from "prop-types";
+import PropTypes from "prop-types";
+import { useContext } from "react";
+import { ThemeContext } from "../context/ThemeContext";
+import { StudentContext } from "../context/StudentContext";
 
 interface NavigationItem {
   label: string;
@@ -16,6 +19,16 @@ function DashboardHeader({
   tagline,
   navigationItems,
 }: DashboardHeaderProps) {
+  const themeContext = useContext(ThemeContext);
+  const studentContext = useContext(StudentContext);
+
+  if (!themeContext || !studentContext) {
+    throw new Error("Contexts must be used within their Providers");
+  }
+
+  const { theme, toggleTheme } = themeContext;
+  const { favoriteCount } = studentContext;
+
   function navigateToSection(targetId: string) {
     const section = document.getElementById(targetId);
 
@@ -67,6 +80,19 @@ function DashboardHeader({
               </li>
             ))}
           </ul>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button
+              type="button"
+              className="dashboard-navigation__link"
+              onClick={toggleTheme}
+              style={{ padding: '0.4rem', border: '1px solid var(--color-border)' }}
+            >
+              {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+            </button>
+            <div className="dashboard-header__favorites">
+              ★ Favorites: {favoriteCount}
+            </div>
+          </div>
         </nav>
       </div>
     </header>
